@@ -49,6 +49,16 @@ def login(user_input: schemas.UserLogin, db: Session = Depends(get_db)):
     token = auth.create_access_token({"sub": db_user.username})
     return {"message": "Login Successfull!!","access_token": token}
 
+@app.get("/profile", response_model=schemas.UserProfile)
+def get_profile(current_user: models.User = Depends(get_current_user)):
+    """Retrieve the profile of the currently authenticated user.
+    Args:
+        current_user (models.User): Currently authenticated user object
+    Returns:
+        schemas.UserProfile: User profile information including username and email
+    """
+    return current_user
+
 @app.post("/tags", response_model=schemas.TagOut)
 def create_tag(tag: schemas.TagCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """

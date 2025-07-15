@@ -8,6 +8,13 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+    
+class UserProfile(BaseModel):
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True
 
 class UserOut(BaseModel):
     id: int
