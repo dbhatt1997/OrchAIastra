@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: orachaistra_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: orachaistra
+      POSTGRES_PASSWORD: orachaistra
+      POSTGRES_DB: orachaistra
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
