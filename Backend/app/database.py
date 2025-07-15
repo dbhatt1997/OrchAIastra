@@ -15,6 +15,15 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():
+    """
+    Database dependency that provides a SQLAlchemy session.
+    
+    This function creates a database session, yields it for use in FastAPI dependencies,
+    and ensures proper cleanup by closing the session when done.
+    
+    Yields:
+        Session: SQLAlchemy database session
+    """
     db = SessionLocal()
     try:
         yield db
