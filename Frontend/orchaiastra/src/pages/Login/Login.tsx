@@ -67,8 +67,8 @@ export const Login = () => {
             });
             const res = await response.json();
             if (response.ok) {
-              showNotification(res?.message, "success");
               setAuthToken(res?.access_token);
+              showNotification(res?.message, "success");
               navigate("/home");
             } else {
               showNotification(

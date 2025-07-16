@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback, use, useContext } from "react";
+import { useState, useRef, useCallback, useContext } from "react";
 import ReactFlow, { Background } from "reactflow";
 import { useStore } from "./store";
 import { shallow } from "zustand/shallow";
 import { InputNode } from "./nodes/inputNode";
 import { ChatGPT } from "./nodes/chatgpt";
 import { Claude } from "./nodes/claude";
+import { Gemini } from "./nodes/gemini";
 import { Button } from "./shared/components/Button/Button";
 import { makeStyles } from "./utils/styles";
 import { Drawer } from "./shared/components/Drawer/Drawer";
@@ -61,6 +62,7 @@ const nodeTypes = {
   customInput: InputNode,
   ChatGPT: ChatGPT,
   Claude: Claude,
+  Gemini: Gemini,
 };
 
 const selector = (state) => ({
@@ -89,7 +91,7 @@ export const PipelineUI = () => {
   const [tagDrawerOpen, setTagDrawerOpen] = useState(false);
 
   const { showNotification } = useNotification();
-  const { authToken } = useContext(AppContext);
+  const { authToken, setTagChange } = useContext(AppContext);
 
   const classes = useStyles();
 
@@ -194,17 +196,19 @@ export const PipelineUI = () => {
                 },
               ]}
               onSubmit={async (_, values) => {
+                console.log(authToken);
                 const response = await fetch("http://localhost:8000/tags", {
                   method: "POST",
                   body: JSON.stringify(values),
                   headers: {
                     "Content-Type": "application/json",
-                    authorization: `Bearer ${authToken}`,
+                    Authorization: `Bearer ${authToken}`,
                   },
                 });
                 const res = await response.json();
                 if (response.ok) {
-                  showNotification(res?.message, "success");
+                  showNotification("Tag Created Successfully", "success");
+                  setTagChange((prev) => !prev);
                 } else {
                   showNotification(res?.detail[0]?.msg ?? res?.detail, "error");
                 }

@@ -9,6 +9,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   const { authToken } = useContext(AppContext);
+
   return (
     <Routes>
       <Route

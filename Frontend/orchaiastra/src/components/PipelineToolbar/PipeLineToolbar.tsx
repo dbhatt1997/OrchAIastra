@@ -8,6 +8,7 @@ export const PipelineToolbar = () => {
       <DraggableNode type="customInput" label="Input" />
       <DraggableNode type="ChatGPT" label="ChatGPT" />
       <DraggableNode type="Claude" label="Claude" />
+      <DraggableNode type="Gemini" label="Gemini" />
     </div>
   );
 };

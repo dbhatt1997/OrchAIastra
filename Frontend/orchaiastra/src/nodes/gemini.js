@@ -8,11 +8,10 @@ import { Tag } from "../shared/components/Tag/Tag";
 import { Label } from "../shared/components/Label/Label";
 import { Container } from "../shared/components/Container/Container";
 import { TextBox } from "../shared/components/TextBox/Textbox";
-import { chatgpt } from "../utils/utils";
 import { Dropdown } from "../shared/components/Dropdown/Dropdown";
 import { makeStyles } from "../utils/styles";
-import { dropdownOptions } from "../utils/utils";
 import { AppContext } from "../context/AppContext";
+import { gemini } from "../utils/utils";
 
 const useStyles = makeStyles(() => ({
   TagContainer: {
@@ -21,20 +20,18 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export const ChatGPT = ({ id, data }) => {
+export const Gemini = ({ id, data }) => {
   const updateNodeField = useStore((state) => state.updateNodeField);
   const nodes = useStore((state) => state.nodes);
   const edges = useStore((state) => state.edges);
 
-  const client = useMemo(() => chatgpt(), []);
+  const client = useMemo(() => gemini(), []);
 
   const currName = useMemo(
-    () => data?.id || id.replace("customInput-", ""),
+    () => data?.inputName || id.replace("customInput-", ""),
     [data, id]
   );
-  const inputType = useMemo(() => data.inputType || "Text", [data]);
-
-  const dropDownOptions = useMemo(() => dropdownOptions(), []);
+  // const inputType = useMemo(() => data.inputType || "Text", [data]);
 
   const { tags, tagsDropdown } = useContext(AppContext);
 
@@ -52,34 +49,23 @@ export const ChatGPT = ({ id, data }) => {
   //     updateNodeField(id, "inputType", e.target.value);
   //   };
 
-  //   const getTargetNodes = useCallback(
-  //     (id) => {
-  //       const targetNodes = [];
-  //       edges.forEach((edge) => {
-  //         if (edge.source === id) {
-  //           const targetNode = nodes.find((node) => node.id === edge.target);
-  //           if (targetNode) {
-  //             targetNodes.push(targetNode);
-  //           }
+  // const setInputName = useCallback(
+  //   (output) => {
+  //     edges.forEach((edge) => {
+  //       if (edge.source === id) {
+  //         const targetNode = nodes.find((node) => node.id === edge.target);
+  //         if (targetNode) {
+  //           const searchInput =
+  //             activeTag === "Process" || activeTag === "Select"
+  //               ? output
+  //               : `${tags[activeTag]}\n${output}`;
+  //           updateNodeField(targetNode.id, "inputName", searchInput);
   //         }
-  //       });
-  //       return targetNodes;
-  //     },
-  //     [nodes, edges]
-  //   );
-  //   const setInputName = useCallback(
-  //     (output) => {
-  //       edges.forEach((edge) => {
-  //         if (edge.source === id) {
-  //           const targetNode = nodes.find((node) => node.id === edge.target);
-  //           if (targetNode) {
-  //             updateNodeField(targetNode.id, "inputName", output);
-  //           }
-  //         }
-  //       });
-  //     },
-  //     [id, nodes, edges, activeTag, updateNodeField]
-  //   );
+  //       }
+  //     });
+  //   },
+  //   [id, nodes, edges, activeTag, updateNodeField]
+  // );
 
   const setKeyValue = useCallback((id, key, value) => {
     const nodes = useStore.getState().nodes;
@@ -109,17 +95,17 @@ export const ChatGPT = ({ id, data }) => {
     });
   }, []);
 
-  const getChatGPTResponse = useCallback(
+  const getGeminiResponse = useCallback(
     async (input) => {
       try {
-        const response = await client.chat.completions.create({
-          model: "gpt-4.1",
-          messages: [{ role: "user", content: input }],
-          stream: true,
+        const response = await client.models.generateContentStream({
+          model: "gemini-2.5-flash",
+          contents: input,
         });
+
         setKeyValue(id, "output", false);
         for await (const chunk of response) {
-          const text = chunk.choices[0]?.delta?.content || "";
+          const text = chunk?.text || "";
           setOutput((prev) => prev + text);
         }
         setOutput((prev) => {
@@ -147,7 +133,7 @@ export const ChatGPT = ({ id, data }) => {
         activeTag === "Process" || activeTag === "Select"
           ? data.inputName
           : `${tags[activeTag]}\n${data.inputName}`;
-      getChatGPTResponse(searchInput);
+      getGeminiResponse(searchInput);
     }
   }, [data.inputName, activeTag]);
 
@@ -159,7 +145,9 @@ export const ChatGPT = ({ id, data }) => {
 
   return (
     <Container>
-      <Label>ChatGPT</Label>
+      <Label backgroundColor="grey" color={"#FFFFFF"}>
+        Gemini
+      </Label>
       <div className={classes.TagContainer}>
         <Dropdown
           value={activeTag}

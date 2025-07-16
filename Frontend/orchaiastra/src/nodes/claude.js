@@ -1,6 +1,6 @@
 // inputNode.js
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { Handle, Position } from "reactflow";
 
 import { useStore } from "../store";
@@ -12,7 +12,7 @@ import { claude } from "../utils/utils";
 import { Dropdown } from "../shared/components/Dropdown/Dropdown";
 import { makeStyles } from "../utils/styles";
 import { dropdownOptions } from "../utils/utils";
-import { tagsData } from "../utils/utils";
+import { AppContext } from "../context/AppContext";
 
 const useStyles = makeStyles(() => ({
   TagContainer: {
@@ -34,7 +34,7 @@ export const Claude = ({ id, data }) => {
   );
   const inputType = useMemo(() => data.inputType || "Text", [data]);
 
-  const dropDownOptions = useMemo(() => dropdownOptions(), []);
+  const { tags, tagsDropdown } = useContext(AppContext);
 
   const [output, setOutput] = useState("");
   const [activeTag, setActiveTag] = useState("Process");
@@ -50,39 +50,69 @@ export const Claude = ({ id, data }) => {
   //     updateNodeField(id, "inputType", e.target.value);
   //   };
 
-  const setInputName = useCallback(
-    (output) => {
-      edges.forEach((edge) => {
-        if (edge.source === id) {
-          const targetNode = nodes.find((node) => node.id === edge.target);
-          if (targetNode) {
-            const searchInput =
-              activeTag === "Process" || activeTag === "Select"
-                ? output
-                : `${tagsData[activeTag]}\n${output}`;
-            updateNodeField(targetNode.id, "inputName", searchInput);
+  // const setInputName = useCallback(
+  //   (output) => {
+  //     edges.forEach((edge) => {
+  //       if (edge.source === id) {
+  //         const targetNode = nodes.find((node) => node.id === edge.target);
+  //         if (targetNode) {
+  //           const searchInput =
+  //             activeTag === "Process" || activeTag === "Select"
+  //               ? output
+  //               : `${tags[activeTag]}\n${output}`;
+  //           updateNodeField(targetNode.id, "inputName", searchInput);
+  //         }
+  //       }
+  //     });
+  //   },
+  //   [id, nodes, edges, activeTag, updateNodeField]
+  // );
+
+  const setKeyValue = useCallback((id, key, value) => {
+    const nodes = useStore.getState().nodes;
+    const edges = useStore.getState().edges;
+
+    edges.forEach((edge) => {
+      if (edge.source === id) {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        if (targetNode) {
+          if (key === "output") {
+            updateNodeField(targetNode.id, key, {
+              ...targetNode.data.output,
+              [data.id]: value,
+            });
+          } else if (key === "inputName") {
+            const existingVal = targetNode.data.inputName || "";
+
+            if (!existingVal.includes(value)) {
+              const updatedVal = existingVal
+                ? `${existingVal}\n${value}`
+                : value;
+              updateNodeField(targetNode.id, key, updatedVal);
+            }
           }
         }
-      });
-    },
-    [id, nodes, edges, activeTag, updateNodeField]
-  );
+      }
+    });
+  }, []);
 
   const getClaudeResponse = useCallback(
     async (input) => {
       try {
         const response = await client.messages.create({
-          model: "claude-opus-4-20250514",
-          max_tokens: 1024,
+          model: "claude-3-5-haiku-20241022",
+          max_tokens: 2024,
           stream: true,
           messages: [{ role: "user", content: input }],
         });
+        setKeyValue(id, "output", false);
         for await (const chunk of response) {
           const text = chunk.delta?.text || "";
           setOutput((prev) => prev + text);
         }
         setOutput((prev) => {
-          setInputName(prev);
+          setKeyValue(id, "inputName", prev);
+          setKeyValue(id, "output", true);
           return prev;
         });
       } catch (error) {
@@ -90,19 +120,28 @@ export const Claude = ({ id, data }) => {
         return "Error fetching response";
       }
     },
-    [client, setInputName]
+    [client, setKeyValue, id]
   );
 
   useEffect(() => {
-    if (data.inputName && data.inputName.trim() !== "") {
+    if (
+      data.inputName &&
+      data.inputName.trim() !== "" &&
+      data.output &&
+      Object.values(data.output).every((val) => val === true)
+    ) {
       setOutput("");
       const searchInput =
         activeTag === "Process" || activeTag === "Select"
           ? data.inputName
-          : `${tagsData[activeTag]}\n${data.inputName}`;
+          : `${tags[activeTag]}\n${data.inputName}`;
       getClaudeResponse(searchInput);
     }
-  }, [data.inputName, inputType, activeTag]);
+  }, [data.inputName, activeTag]);
+
+  useEffect(() => {
+    updateNodeField(id, "output", { [id]: true });
+  }, [id]);
 
   console.log(nodes, edges);
 
@@ -115,7 +154,7 @@ export const Claude = ({ id, data }) => {
         <Dropdown
           value={activeTag}
           onChange={(value) => setActiveTag(value)}
-          options={dropDownOptions}
+          options={tagsDropdown}
         />
         <Tag
           onCancel={() => setActiveTag("Select")}

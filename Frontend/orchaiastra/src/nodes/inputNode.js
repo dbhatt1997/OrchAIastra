@@ -48,19 +48,20 @@ export const InputNode = ({
     updateNodeField(id, "inputType", inputType);
   }, [currName, inputType, id, updateNodeField]);
 
-  const handleSearch = useCallback(
-    () =>
-      edges.forEach((edge) => {
-        if (edge.source === id) {
-          const targetNode = nodes.find((node) => node.id === edge.target);
-          if (targetNode) {
-            updateNodeField(targetNode.id, "inputName", currName);
-            updateNodeField(targetNode.id, "inputType", inputType);
-          }
+  const handleSearch = useCallback(() => {
+    nodes.forEach((node) => {
+      updateNodeField(node.id, "inputName", "");
+    });
+
+    edges.forEach((edge) => {
+      if (edge.source === id) {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        if (targetNode) {
+          updateNodeField(targetNode.id, "inputName", currName);
         }
-      }),
-    [currName, inputType, id, nodes, edges, updateNodeField]
-  );
+      }
+    });
+  }, [currName, id, nodes, edges, updateNodeField]);
 
   return (
     <Container>

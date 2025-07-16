@@ -72,4 +72,12 @@ export const useStore = create((set, get) => ({
   },
 
   setEdges: (edges) => set({ edges }),
+
+  reset: () => {
+    set({
+      nodes: [],
+      edges: [],
+      nodeIDs: {},
+    });
+  },
 }));
