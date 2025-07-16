@@ -32,16 +32,16 @@ cd OrchAIastra
 docker compose up
 
 ### 3. Setup Backend
-cd Backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload 
+- cd Backend
+- python -m venv venv
+- source venv/bin/activate
+- pip install -r requirements.txt
+- uvicorn main:app --reload 
 
-### 3. Setup Frontend
-cd Frontend/orchaistra
-npm i
-npm run start
+### 4. Setup Frontend
+- cd Frontend/orchaistra
+- npm i
+- npm run start
 
 ## How It Works
 
