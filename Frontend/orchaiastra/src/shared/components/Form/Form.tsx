@@ -10,6 +10,7 @@ import type { FC } from "react";
 
 type InputProps = {
   id: string;
+  type?: string;
   label?: string;
   value?: string;
   placeholder?: string;
@@ -23,6 +24,7 @@ type Rules = {
 };
 
 export type FormProps = {
+  formId: string;
   disableGutters?: boolean;
   input: InputProps[];
   rules?: Rules[];
@@ -32,6 +34,7 @@ export type FormProps = {
   ) => void;
 };
 export const Form: FC<FormProps> = ({
+  formId,
   input,
   onSubmit,
   rules,
@@ -63,6 +66,7 @@ export const Form: FC<FormProps> = ({
             const { [id]: _, ...rest } = prev;
             return rest;
           });
+          setValues((prev: any) => ({ ...prev, [id]: inputEl.value }));
         }
       } else {
         setValues((prev: any) => ({ ...prev, [id]: inputEl.value }));
@@ -88,7 +92,7 @@ export const Form: FC<FormProps> = ({
   console.log("Form values:", values);
   console.log("Form errors:", error);
   return (
-    <form onSubmit={submitForm}>
+    <form id={formId} onSubmit={submitForm}>
       <div className={classes.formContainer}>
         {input.map((item) => {
           const { label, id, required, toolTip, value, ...rest } = item;

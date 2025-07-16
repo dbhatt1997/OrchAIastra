@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, use, useContext } from "react";
 import ReactFlow, { Background } from "reactflow";
 import { useStore } from "./store";
 import { shallow } from "zustand/shallow";
@@ -10,6 +10,8 @@ import { makeStyles } from "./utils/styles";
 import { Drawer } from "./shared/components/Drawer/Drawer";
 import "reactflow/dist/style.css";
 import { FormWrapper } from "./shared/components/Form/FormWrapper";
+import { useNotification } from "./shared/components/Snackbar/Snackbar";
+import { AppContext } from "./context/AppContext";
 
 const useStyles = makeStyles(() => ({
   tagButton: {
@@ -51,6 +53,8 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+const FORM_ID = "tagForm";
+
 const gridSize = 20;
 const proOptions = { hideAttribution: true };
 const nodeTypes = {
@@ -83,6 +87,9 @@ export const PipelineUI = () => {
   } = useStore(selector, shallow);
 
   const [tagDrawerOpen, setTagDrawerOpen] = useState(false);
+
+  const { showNotification } = useNotification();
+  const { authToken } = useContext(AppContext);
 
   const classes = useStyles();
 
@@ -171,28 +178,48 @@ export const PipelineUI = () => {
           <div className={classes.tagForm}>
             <div className={classes.formTitle}> Create New Tag</div>
             <FormWrapper
+              formId={FORM_ID}
               input={[
                 {
-                  id: "tagName",
+                  id: "tag_name",
                   label: "Tag Name",
                   placeholder: "Enter tag name",
                   required: true,
                 },
                 {
-                  id: "tagDescription",
+                  id: "description",
                   label: "Tag Description",
                   placeholder: "Enter tag description",
                   required: true,
                 },
               ]}
+              onSubmit={async (_, values) => {
+                const response = await fetch("http://localhost:8000/tags", {
+                  method: "POST",
+                  body: JSON.stringify(values),
+                  headers: {
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${authToken}`,
+                  },
+                });
+                const res = await response.json();
+                if (response.ok) {
+                  showNotification(res?.message, "success");
+                } else {
+                  showNotification(res?.detail[0]?.msg ?? res?.detail, "error");
+                }
+              }}
             />
           </div>
           <div className={classes.actionButtons}>
             <Button
               title={"Create Tag"}
               onClick={() => {
-                setTagDrawerOpen(false);
-                // Logic to handle tag creation can be added here
+                const form = document.getElementById(FORM_ID);
+                if (form) {
+                  form.requestSubmit();
+                  setTagDrawerOpen(false);
+                }
               }}
             />
             <Button
