@@ -45,9 +45,9 @@ docker compose up
 
 ## How It Works
 
-![Screenshot](./assets/Demo1.png)
-![Screenshot](./assets/Demo2.png)
-![Screenshot](./assets/Demo3.png)
-![Screenshot](./assets/Demo4.png)
-![Screenshot](./assets/Demo4.png)
-![Screenshot](./assets/Demo5.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo1.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo2.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo3.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo4.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo4.png)
+![Screenshot](./Frontend/orchaiastra/src/assets/Demo5.png)
