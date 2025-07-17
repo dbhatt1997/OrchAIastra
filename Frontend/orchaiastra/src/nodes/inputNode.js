@@ -22,9 +22,7 @@ export const InputNode = ({
   const nodes = useStore((state) => state.nodes);
   const edges = useStore((state) => state.edges);
 
-  const [currName, setCurrName] = useState(
-    data?.inputName || id.replace("customInput-", "input_")
-  );
+  const [currName, setCurrName] = useState("");
   const [inputType, setInputType] = useState(data.inputType || "Text");
 
   const handleNameChange = useCallback(
