@@ -45,9 +45,9 @@ docker compose up
 
 ## How It Works
 
-![Screenshot](./assets/demo1.png)
-![Screenshot](./assets/demo2.png)
-![Screenshot](./assets/demo3.png)
-![Screenshot](./assets/demo4.png)
-![Screenshot](./assets/demo4.png)
-![Screenshot](./assets/demo5.png)
+![Screenshot](./assets/Demo1.png)
+![Screenshot](./assets/Demo2.png)
+![Screenshot](./assets/Demo3.png)
+![Screenshot](./assets/Demo4.png)
+![Screenshot](./assets/Demo4.png)
+![Screenshot](./assets/Demo5.png)
